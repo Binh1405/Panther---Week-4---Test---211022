@@ -1,36 +1,32 @@
-const express = require("express");
-const path = require("path");
-const cookieParser = require("cookie-parser");
-const logger = require("morgan");
-const cors = require("cors");
-const indexRouter = require("./routes/index");
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
 
-const app = express();
+var indexRouter = require('./routes/index');
 
-app.use(logger("dev"));
+var app = express();
+
+app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
-app.use(cors());
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use("/api", indexRouter);
+app.use('/', indexRouter);
 
-/** when request match no ruote, create error */
 app.use((req, res, next) => {
-  const error = new Error("Wrong url");
-  error.statusCode = 404;
-  next(error);
-});
+    const error = new Error ("wrong url")
+    error.statusCode = 404
+    next(error)
+})
+app.use((err, req, res, next) =>{
+    if(error.statusCode){
+       return res.statusCode(error.statusCode).send(err.message)
+    }else{
+        res.status(500).send(err.message)
+    }
+})
 
-/** when next(error) called,
- * this function will send error message */
-app.use((err, req, res, next) => {
-  if (err.statusCode) {
-    return res.status(err.status).send(err.message);
-  } else {
-    return res.status(500).send(err.message);
-  }
-});
 
 module.exports = app;

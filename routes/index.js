@@ -1,7 +1,10 @@
-const express = require("express");
-const router = express.Router();
+var express = require('express');
+var router = express.Router();
 
-const jobApi = require("./job.api");
-router.use("/jobs", jobApi);
+const jobApi = require("./job.api")
+router.use("/jobs", jobApi)
+
+const companyApi = require("./companies.api")
+router.use("/companies", companyApi)
 
 module.exports = router;
