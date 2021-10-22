@@ -1,3 +1,4 @@
+const { crypto } = require("crypto");
 const fs = require("fs");
 const companyController = {};
 
@@ -38,7 +39,7 @@ companyController.getAllCompanies = (req, res, next) => {
 // As a client app I can make a GET request to http://localhost:5000/companies?sortBy=ratings&order=asc and receive back an array of 20 companies sorted by the top 5 average ratings combined compared to all other companies in asc order.
 // As a client app I can make a GET request to http://localhost:5000/companies?sortBy=ratings&order=desc and receive back an array of 20 companies sorted by the top 5 average ratings combined compared to all other companies in desc order.        
 if(sortBy){
-        //so hard man..
+        //..
         }
 
 //As a client app I can make a GET request to http://localhost:5000/companies and 
@@ -58,10 +59,56 @@ if(sortBy){
 }
 
 //As a client app I can make a POST request to add a new company with exact structure
-        // do it later
+companyController.createCompany = (req, res, next) => {
+    console.log("create company")
+    const {id, name, benefits, description, ratings, jobs, numberOfJobs, numberOfRatings} = req.body
 
+    if(typeof id !=="string"||
+        typeof name !=="string"||
+        !Array.isArray(benefits)||
+        benefits.length<1||
+        typeof description !=="string"||
+        !Array.isArray(ratings)||
+        ratings.length<1||
+        !Array.isArray(jobs)||
+        jobs.length<1||
+        typeof numberOfJobs !== "number"||
+        numberOfJobs < 0||
+        typeof numberOfRatings !== "number"||
+        numberOfRatings <0
+        ) 
+        {throw new Error ("MISSING INFOS")
+    }
 
+    const companyStructure = {
+        id: crypto
+        .randomBytes(Math.ceil(10 / 2))
+        .toString("hex")
+        .slice(0, 10)
+        .toUpperCase(),
+        name,
+        benefits,
+        description,
+        ratings,
+        jobs,
+        numberOfJobs, 
+        numberOfRatings
+    }
 
+try {
+    const rawData = fs.readFileSync("data.json", "utf-8")
+    const data = JSON.parse(rawData)
+    let result = data.companies
+
+    result.push({companyStructure})
+    data.companies = result
+    const newData = JSON.stringify(data)
+    fs.writeFileSync("data.json", newData)
+    return res.status(200).send(jobStructure)
+} catch (error) {
+    return next(error)
+}
+}
 
 //As a client app I can make a PUT request to http://localhost:5000/companies/:id and add a property 
 //enterprise, which is true.
@@ -107,7 +154,10 @@ companyController.deleteCompanyById = (req, res, next) => {
         let result = data.companies
         const newArray = result.filter((e) => e.id !== id)
         // console.log("new array of companies", newArray)
-        return res.status(200).send(newArray)
+        data.companies = newArray
+        const newData = JSON.stringify(data)
+        fs.writeFileSync("data.json", newData)
+        return res.status(200).send("Successfully delete")
     } catch (error) {
         return next(error)
     }
