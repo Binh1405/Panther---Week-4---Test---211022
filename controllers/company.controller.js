@@ -5,10 +5,6 @@ const { title } = require("process");
 const companyController = {};
 
 
-
-
-
-
 // As a client app I can make a GET request to http://localhost:5000/companies?sortBy=ratings and receive
 // back an array of 20 companies sorted by average ratings(average high score computed of all 5 criteria)
 // combined compared to all other companies in asc order by default.
@@ -31,6 +27,19 @@ companyController.getAllCompanies = (req, res, next) => {
         return res.status(200).send({result})
         }
 
+// As a client app I can make a GET request to http://localhost:5000/companies?city=Miami,New%20York. and 
+// receive back a list of companies with jobs in those cities Miami & New York. 
+        if(city){
+            // console.log(city.split(","))
+            result = data.jobs.filter((el) => {
+            if (city.split(",").includes(el.city))
+            // console.log("this is the city", el.city)
+            return true
+            })
+            return res.status(200).send({result})
+            //this part costs me almost 2hours..
+        }
+
 //As a client app I can make a GET request to http://localhost:5000/companies and 
 //receive back an array of 20 companies.
 // As a client app I can make a GET request to http://localhost:5000/companies?page=2 and 
@@ -42,8 +51,7 @@ companyController.getAllCompanies = (req, res, next) => {
         result = data.companies.slice((requestPage-1)*limit, requestPage*limit)
         console.log("result length", result.length)
 
-//// As a client app I can make a GET request to http://localhost:5000/companies?city=Miami,New%20York. and 
-// receive back a list of companies with jobs in those cities Miami & New York.        
+       
 
         return res.status(200).send({result})
     } catch (error) {
