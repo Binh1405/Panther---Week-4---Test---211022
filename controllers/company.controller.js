@@ -99,12 +99,11 @@ try {
     const rawData = fs.readFileSync("data.json", "utf-8")
     const data = JSON.parse(rawData)
     let result = data.companies
-
-    result.push({companyStructure})
+    result.push(companyStructure)
     data.companies = result
     const newData = JSON.stringify(data)
     fs.writeFileSync("data.json", newData)
-    return res.status(200).send(jobStructure)
+    return res.status(200).send(companyStructure)
 } catch (error) {
     return next(error)
 }
