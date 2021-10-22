@@ -1,13 +1,5 @@
-// const crypto = require("crypto"); // return required number of characters
-// const router = require("../routes");
 const fs = require("fs");
-const { title } = require("process");
 const companyController = {};
-
-
-// As a client app I can make a GET request to http://localhost:5000/companies?sortBy=ratings and receive
-// back an array of 20 companies sorted by average ratings(average high score computed of all 5 criteria)
-// combined compared to all other companies in asc order by default.
 
 companyController.getAllCompanies = (req, res, next) => {
     const limit = 20
@@ -40,6 +32,15 @@ companyController.getAllCompanies = (req, res, next) => {
             //this part costs me almost 2hours..
         }
 
+// As a client app I can make a GET request to http://localhost:5000/companies?sortBy=ratings and receive
+// back an array of 20 companies sorted by average ratings(average high score computed of all 5 criteria)
+// combined compared to all other companies in asc order by default.
+// As a client app I can make a GET request to http://localhost:5000/companies?sortBy=ratings&order=asc and receive back an array of 20 companies sorted by the top 5 average ratings combined compared to all other companies in asc order.
+// As a client app I can make a GET request to http://localhost:5000/companies?sortBy=ratings&order=desc and receive back an array of 20 companies sorted by the top 5 average ratings combined compared to all other companies in desc order.        
+if(sortBy){
+        //so hard man..
+        }
+
 //As a client app I can make a GET request to http://localhost:5000/companies and 
 //receive back an array of 20 companies.
 // As a client app I can make a GET request to http://localhost:5000/companies?page=2 and 
@@ -50,17 +51,66 @@ companyController.getAllCompanies = (req, res, next) => {
 // receive an array, the nth array of 20 companies.
         result = data.companies.slice((requestPage-1)*limit, requestPage*limit)
         console.log("result length", result.length)
-
-       
-
         return res.status(200).send({result})
     } catch (error) {
         return next(error)
     }
 }
 
+//As a client app I can make a POST request to add a new company with exact structure
+        // do it later
 
 
 
+
+//As a client app I can make a PUT request to http://localhost:5000/companies/:id and add a property 
+//enterprise, which is true.
+companyController.updateCompanyById = (req, res, next) => { 
+    console.log("update company")
+    const {id} = req.params
+
+    try {
+        if(!id) throw new Error("pls add id")
+        const rawData = fs.readFileSync("data.json", "utf-8")
+        const data = JSON.parse(rawData)
+        let result = data.companies
+        const original = result.find((e) => e.id === id)
+        if(!original) throw new Error ("job with id not found")
+        console.log("found", original)
+        original.enterprise = true;
+        const update = result.map((e) => {
+            if (e.id === id){
+                e.enterprise = true
+            }
+            return e
+        }) 
+        data.companies = update;
+        const newData = JSON.stringify(data)
+        fs.writeFileSync("data.json", newData)
+
+        return res.status(200).send(newData)
+    } catch (error) {
+        return next(error)
+    }
+}
+
+//As a client app I can make a DELETE request to http://localhost:5000/companies/:id delete a 
+//company by id.
+companyController.deleteCompanyById = (req, res, next) => { 
+    console.log("delete company")
+    const {id} = req.params
+
+    try {
+        if(!id) throw new Error("pls add id")
+        const rawData = fs.readFileSync("data.json", "utf-8")
+        const data = JSON.parse(rawData)
+        let result = data.companies
+        const newArray = result.filter((e) => e.id !== id)
+        // console.log("new array of companies", newArray)
+        return res.status(200).send(newArray)
+    } catch (error) {
+        return next(error)
+    }
+}
 
 module.exports = companyController
